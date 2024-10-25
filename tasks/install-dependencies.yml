@@ -1,0 +1,51 @@
+---
+- name: install dependencies
+  become: yes
+  become_method: sudo
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - policycoreutils-python
+      - selinux-policy-devel
+
+- name: azcopy installed?
+  stat:
+    path: /usr/bin/azcopy
+  register: azcopy_check
+
+- name: untar azcopy
+  become: yes
+  become_method: sudo
+  unarchive:
+    src: "{{azcopy.url}}"
+    dest: "{{azcopy.tmp_dir}}"
+    remote_src: yes
+    list_files: yes
+  register: azcopy_unarchive
+  when: azcopy_check.stat.exists == False
+
+- name: azcopy to /usr/bin
+  become: yes
+  become_method: sudo
+  copy:
+    src: "{{azcopy.tmp_dir}}/{{azcopy_unarchive.files[0]}}/azcopy"
+    dest: /usr/bin/
+    remote_src: yes
+    mode: '0755'
+  when: azcopy_check.stat.exists == False
+
+# cleanup of azcopy
+- name: azcopy archive leftover?
+  stat:
+    path: "{{azcopy.tmp_dir}}/{{azcopy_unarchive.files[0]}}"
+  register: azcopy_unarchive_check
+  when: azcopy_check.stat.exists == False
+
+- name: delete azcopy archive
+  become: yes
+  become_method: sudo
+  file:
+    path: "{{azcopy.tmp_dir}}/{{azcopy_unarchive.files[0]}}"
+    state: absent
+  when: azcopy_check.stat.exists == False

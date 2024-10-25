@@ -1,0 +1,41 @@
+---
+- name: read existing cortex.conf
+  slurp:
+    src: "{{xdr_config.dir}}/{{xdr_config.blob_name}}"
+  register: tag_file_content
+
+- name: extract existing tags as string
+  set_fact:
+    existing_tag_string: "{{ tag_file_content.content | b64decode | regex_search('^--endpoint-tags\\s.*', multiline=True) | regex_replace('--endpoint-tags ', '')}}"
+
+- name: convert existing tags list
+  set_fact:
+    existing_tag_list: "{{existing_tag_string.split(',')}}"
+
+- name: create new tags as list
+  set_fact:
+    new_tag_list: "{{ xdr_tags.split(',')}}"
+
+- name: update /etc/panw/cortex.conf
+  become: yes
+  become_method: sudo
+  lineinfile:
+    path: "{{xdr_config.dir}}/{{xdr_config.blob_name}}"
+    regexp: "^--endpoint-tags"
+    insertafter: EOF
+    line: "--endpoint-tags {{xdr_tags}}"
+  register: xdr_tags_check
+
+- name: remove old tags with cytool
+  become: yes
+  become_method: sudo
+  command: "{{cytool.path}}/cytool endpoint_tags remove {{item}}"
+  loop: "{{ existing_tag_list }}"
+  when: xdr_tags_check.changed
+
+- name: add new tags with cytool
+  become: yes
+  become_method: sudo
+  command: "{{cytool.path}}/cytool endpoint_tags add {{item}}"
+  loop: "{{ new_tag_list }}"
+  when: xdr_tags_check.changed

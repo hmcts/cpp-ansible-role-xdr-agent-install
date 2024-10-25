@@ -1,0 +1,12 @@
+---
+- name: Install dependencies
+  include_tasks: install-dependencies.yml
+
+- name: Install XDR agent & cortex.conf
+  include_tasks: install-xdr.yml 
+
+- name: Test XDR agent & cleanup
+  include_tasks: test-xdr.yml 
+
+- name: Update XDR tags
+  include_tasks: update-tags.yml

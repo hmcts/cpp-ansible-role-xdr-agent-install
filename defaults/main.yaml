@@ -1,0 +1,20 @@
+xdr_storage_account:
+  sa_name: cftptlintsvc
+  container_name: xdr-collectors
+  blob_path: "{{cortex_env}}/{{cortex_env}}_agent-HMCTS_Linux_rpm_8.5.0.125392/"
+
+xdr_install:
+  blob_name: "cortex-8.5.0.125392.rpm"
+  tmp_dir: /tmp
+
+xdr_config:
+  blob_name: cortex.conf
+  tmp_dir: /tmp
+  dir: /etc/panw
+
+cytool:
+  path: /opt/traps/bin
+  
+azcopy:
+  url: "https://aka.ms/downloadazcopy-v10-linux"
+  tmp_dir: /tmp

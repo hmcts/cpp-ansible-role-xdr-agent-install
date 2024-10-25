@@ -1,0 +1,74 @@
+---
+### cortex.conf logic
+- name: cortex.conf file exist?
+  stat:
+    path: "{{xdr_config.dir}}/{{xdr_config.blob_name}}"
+  register: config_file
+
+- name: create /etc/panw
+  become: yes
+  become_method: sudo
+  file:
+    path: "{{xdr_config.dir}}"
+    state: directory
+  when: config_file.stat.exists == False
+
+- name: download cortex.conf from cftptlintsvc SA
+  become: yes
+  become_method: sudo
+  command: "azcopy copy 'https://{{xdr_storage_account.sa_name}}.blob.core.windows.net/{{xdr_storage_account.container_name}}/{{xdr_storage_account.blob_path}}{{xdr_config.blob_name}}?{{sa_key}}' {{xdr_config.tmp_dir}}/{{xdr_config.blob_name}}"
+
+- name: add tags to cortex.conf
+  become: yes
+  become_method: sudo
+  lineinfile:
+    path: "{{xdr_config.tmp_dir}}/{{xdr_config.blob_name}}"
+    regexp: "^--endpoint-tags"
+    insertafter: EOF
+    line: "--endpoint-tags {{xdr_tags}}"
+  when: config_file.stat.exists == False
+
+- name: cortex.conf to /etc/panw
+  become: yes
+  become_method: sudo
+  copy:
+    remote_src: yes
+    src: "{{xdr_config.tmp_dir}}/{{xdr_config.blob_name}}"
+    dest: "{{xdr_config.dir}}"
+    owner: root
+    group: root
+    mode: 0755
+  when: config_file.stat.exists == False
+
+
+### Installer logic
+- name: XDR agent installed?
+  become: yes
+  become_method: sudo
+  stat:
+    path: "{{cytool.path}}/cytool"
+  register: cytool_check
+    
+- name: XDR agent working?
+  become: yes
+  become_method: sudo
+  command: "{{cytool.path}}/cytool last_checkin"
+  register: traps_output
+  when: cytool_check.stat.exists
+
+- name: download XDR agent installer from cftptlintsvc SA
+  become: yes
+  become_method: sudo
+  command: "azcopy copy 'https://{{xdr_storage_account.sa_name}}.blob.core.windows.net/{{xdr_storage_account.container_name}}/{{xdr_storage_account.blob_path}}{{xdr_install.blob_name}}?{{sa_key}}' {{xdr_install.tmp_dir}}/{{xdr_install.blob_name}}"
+  when: cytool_check.stat.exists == False
+
+- name: stat XDR agent installer
+  stat:
+    path: "{{xdr_install.tmp_dir}}/{{xdr_install.blob_name}}"
+  register: install_file 
+
+- name: install XDR agent
+  become: yes
+  become_method: sudo
+  command: "rpm -Uh {{xdr_install.tmp_dir}}/{{xdr_install.blob_name}}"
+  when: install_file.stat.exists and cytool_check.stat.exists

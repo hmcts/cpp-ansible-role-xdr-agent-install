@@ -1,0 +1,27 @@
+---
+# cleanup of xdr agent config & installer
+- name: xdr install leftover?
+  stat:
+    path: "{{xdr_install.tmp_dir}}/{{xdr_install.blob_name}}"
+  register: tmp_install_file
+
+- name: temp cortex.conf leftover?
+  stat:
+    path: "{{xdr_config.tmp_dir}}/{{xdr_config.blob_name}}"
+  register: tmp_config_file
+
+- name: delete xdr installer 
+  become: yes
+  become_method: sudo
+  file:
+    path: "{{xdr_install.tmp_dir}}/{{xdr_install.blob_name}}"
+    state: absent
+  when: tmp_install_file.stat.exists 
+
+- name: delete temp cortex.conf
+  become: yes
+  become_method: sudo
+  file:
+    path: "{{xdr_config.tmp_dir}}/{{xdr_config.blob_name}}"
+    state: absent
+  when: tmp_config_file.stat.exists
