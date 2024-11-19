@@ -1,12 +1,16 @@
 ---
 - name: Install dependencies
-  include_tasks: install-dependencies.yml
+  include: install-dependencies.yml
+  when: (ansible_os_family == 'RedHat') and (ansible_distribution_major_version | int == 7)
 
 - name: Install XDR agent & cortex.conf
-  include_tasks: install-xdr.yml 
+  include: install-xdr.yml 
+  when: (ansible_os_family == 'RedHat') and (ansible_distribution_major_version | int == 7)
 
 - name: Test XDR agent & cleanup
-  include_tasks: test-xdr.yml 
+  include: test-xdr.yml 
+  when: (ansible_os_family == 'RedHat') and (ansible_distribution_major_version | int == 7)
 
 - name: Update XDR tags
-  include_tasks: update-tags.yml
+  include: update-tags.yml
+  when: (ansible_os_family == 'RedHat') and (ansible_distribution_major_version | int == 7)

@@ -1,11 +1,9 @@
 ---
 - name: install dependencies
-  become: yes
+  become: true
   become_method: sudo
   yum:
-    name: "{{ packages }}"
-  vars:
-    packages:
+    name:
       - policycoreutils-python
       - selinux-policy-devel
 
@@ -15,7 +13,7 @@
   register: azcopy_check
 
 - name: untar azcopy
-  become: yes
+  become: true
   become_method: sudo
   unarchive:
     src: "{{azcopy.url}}"
@@ -26,7 +24,7 @@
   when: azcopy_check.stat.exists == False
 
 - name: azcopy to /usr/bin
-  become: yes
+  become: true
   become_method: sudo
   copy:
     src: "{{azcopy.tmp_dir}}/{{azcopy_unarchive.files[0]}}/azcopy"
@@ -43,7 +41,7 @@
   when: azcopy_check.stat.exists == False
 
 - name: delete azcopy archive
-  become: yes
+  become: true
   become_method: sudo
   file:
     path: "{{azcopy.tmp_dir}}/{{azcopy_unarchive.files[0]}}"

@@ -30,12 +30,12 @@
   become: yes
   become_method: sudo
   command: "{{cytool.path}}/cytool endpoint_tags remove {{item}}"
-  loop: "{{ existing_tag_list }}"
+  with_items: "{{ existing_tag_list }}"
   when: xdr_tags_check.changed
 
 - name: add new tags with cytool
   become: yes
   become_method: sudo
   command: "{{cytool.path}}/cytool endpoint_tags add {{item}}"
-  loop: "{{ new_tag_list }}"
+  with_items: "{{ new_tag_list }}"
   when: xdr_tags_check.changed
