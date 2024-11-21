@@ -12,11 +12,17 @@
     path: /usr/bin/azcopy
   register: azcopy_check
 
+- name: downlod azcopy
+  become: true
+  become_method: sudo
+  command: "curl https://aka.ms/downloadazcopy-v10-linux -L -o {{azcopy.tmp_dir}}/azcopy.tar.gz"
+  when: azcopy_check.stat.exists == False
+
 - name: untar azcopy
   become: true
   become_method: sudo
   unarchive:
-    src: "{{azcopy.url}}"
+    src: "{{azcopy.tmp_dir}}/azcopy.tar.gz"
     dest: "{{azcopy.tmp_dir}}"
     remote_src: yes
     list_files: yes
