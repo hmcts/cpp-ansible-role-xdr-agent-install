@@ -71,4 +71,4 @@
   become: yes
   become_method: sudo
   command: "rpm -Uh {{xdr_install.tmp_dir}}/{{xdr_install.blob_name}}"
-  when: install_file.stat.exists and cytool_check.stat.exists
+  when: install_file.stat.exists and cytool_check.stat.exists == False
