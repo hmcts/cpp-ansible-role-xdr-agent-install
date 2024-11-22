@@ -18,3 +18,5 @@ cytool:
 azcopy:
   url: "https://aka.ms/downloadazcopy-v10-linux"
   tmp_dir: /tmp
+
+cortex_env: "prod"
