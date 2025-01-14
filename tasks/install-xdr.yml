@@ -25,7 +25,7 @@
     path: "{{xdr_config.tmp_dir}}/{{xdr_config.blob_name}}"
     regexp: "^--endpoint-tags"
     insertafter: EOF
-    line: "--endpoint-tags {{xdr_tags}}"
+    line: "--endpoint-tags {{ xdr_tags | replace('|', ',') }}"
   when: config_file.stat.exists == False
 
 - name: cortex.conf to /etc/panw

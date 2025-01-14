@@ -14,7 +14,7 @@
 
 - name: create new tags as list
   set_fact:
-    new_tag_list: "{{ xdr_tags.split(',')}}"
+    new_tag_list: "{{ xdr_tags.split('|')}}"
 
 - name: update /etc/panw/cortex.conf
   become: yes
@@ -23,7 +23,7 @@
     path: "{{xdr_config.dir}}/{{xdr_config.blob_name}}"
     regexp: "^--endpoint-tags"
     insertafter: EOF
-    line: "--endpoint-tags {{xdr_tags}}"
+    line: "--endpoint-tags {{ xdr_tags | replace('|', ',') }}"
   register: xdr_tags_check
 
 - name: remove old tags with cytool
