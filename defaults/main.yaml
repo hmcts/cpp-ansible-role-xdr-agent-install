@@ -1,10 +1,10 @@
 xdr_storage_account:
   sa_name: cftptlintsvc
   container_name: xdr-collectors
-  blob_path: "{{cortex_env}}/{{cortex_env}}_agent-HMCTS_Linux_rpm_8.5.0.125392/"
+  blob_path: "{{cortex_env}}/{{cortex_env}}_agent_HMCTS_linux_rpm_8.6.1.129181/"
 
 xdr_install:
-  blob_name: "cortex-8.5.0.125392.rpm"
+  blob_name: "cortex-8.6.1.129181.rpm"
   tmp_dir: /tmp
 
 xdr_config:
